@@ -1,12 +1,260 @@
 <main class="shell">
-  <header class="topbar"><a class="brand" href="#"><span class="brand-mark">A</span><span>Aero<span>Vista</span><small>OPERATIONS CONTROL</small></span></a><div class="live" *ngIf="now$ | async as now"><i></i> LIVE NETWORK <span>•</span> {{now | date:'dd MMM yyyy':'Asia/Kolkata':'en-IN' | uppercase}} <strong>{{now | date:'HH:mm:ss':'Asia/Kolkata':'en-IN'}} IST</strong></div><details class="operator-menu"><summary class="profile" aria-label="Open operator profile">GB</summary><div class="operator-card"><span class="operator-avatar">GB</span><div><b>Ganga Bhavani</b><small>Operations Controller</small></div><p [class.away]="operatorStatus==='Away'"><i></i> {{operatorStatus}} <em>Mock session</em></p><button type="button" (click)="toggleOperatorStatus()">Set {{operatorStatus==='On duty' ? 'away' : 'on duty'}}</button></div></details></header>
-  <section class="intro"><div><p class="eyebrow">NETWORK OVERVIEW <span>·</span> INDIA & INTERNATIONAL</p><h1>Flight operations, <em>in view.</em></h1><p class="subcopy">A real-time operations workspace for confident, informed decisions.</p></div><button class="export" type="button" (click)="exportFlights()">⇩ <span>Export report</span></button></section>
-  <section class="kpis" *ngIf="kpis | async as cards"><article *ngFor="let card of cards" class="kpi {{card.tone}}"><div class="kpi-icon">{{card.icon}}</div><div><span>{{card.label}}</span><strong>{{card.value | number:'2.0'}}</strong></div><small>↗ Live</small></article></section><section class="alerts" *ngIf="alerts$ | async as alerts"><button type="button" *ngFor="let flight of alerts" (click)="select(flight)"><span [class]="'alert-dot '+statusClass(flight.status)"></span><b>{{flight.number}}</b><span>{{flight.status==='Delayed' ? 'Delay requires review' : 'Boarding in progress'}}</span><small>{{flight.origin.code}} → {{flight.destination.code}}</small></button><p *ngIf="!alerts.length">✓ No operational exceptions requiring attention.</p></section>
-  <section class="workspace"><aside class="sidebar"><div class="side-head"><div><p class="eyebrow">FLIGHT DIRECTORY</p><h2>Network flights <span *ngIf="flights$ | async as list">{{list.length}}</span></h2></div><button title="Clear filters" aria-label="Clear filters" (click)="clear()">↻</button></div>
-    <form [formGroup]="filter" class="filters"><label class="search"><span>⌕</span><input formControlName="query" placeholder="Search callsign"></label><div class="select-grid"><label>Status<select formControlName="status"><option>All</option><option *ngFor="let status of statuses">{{status}}</option></select></label><label>Origin<select formControlName="origin"><option>All</option><option *ngFor="let airport of airports">{{airport}}</option></select></label></div><label>Destination<select formControlName="destination"><option>All</option><option *ngFor="let airport of airports">{{airport}}</option></select></label></form>
-    <div class="flight-list" *ngIf="flights$ | async as list"><button class="flight-row" *ngFor="let f of list" (click)="select(f)" [class.active]="(selected$ | async)?.id===f.id"><span class="flight-top"><b>{{f.number}}</b><i class="status {{statusClass(f.status)}}">{{f.status}}</i></span><strong>{{f.callsign}}</strong><span class="route"><span>{{f.origin.code}}<small>{{f.origin.city}}</small></span><span class="route-line">✈</span><span>{{f.destination.code}}<small>{{f.destination.city}}</small></span></span><span class="time">ETA <b>{{f.eta}}</b></span></button><div class="empty" *ngIf="!list.length">No flights match these filters.</div></div>
-  </aside>
-  <section class="map-area"><div id="flight-map" aria-label="Interactive live flight map"></div><div class="map-label"><span class="pulse"></span><span>LIVE AIRSPACE</span><b>18 tracked</b></div><button class="simulator" type="button" (click)="toggleSimulation()" [class.running]="simulationActive"><span>{{simulationActive ? 'Ⅱ' : '▶'}}</span>{{simulationActive ? 'Pause live simulation' : 'Play live simulation'}}</button><div class="legend"><button type="button" (click)="setMapStatus('En route')" [class.active]="filter.controls.mapStatus.value==='En route'"><i class="dot en-route"></i>En route</button><button type="button" (click)="setMapStatus('Delayed')" [class.active]="filter.controls.mapStatus.value==='Delayed'"><i class="dot delayed"></i>Delayed</button><button type="button" (click)="setMapStatus('Ground')" [class.active]="filter.controls.mapStatus.value==='Ground'"><i class="dot boarding"></i>Ground</button><button type="button" class="all" (click)="setMapStatus('All')" [class.active]="filter.controls.mapStatus.value==='All'">All</button></div></section>
-  <aside class="detail" *ngIf="selected$ | async as flight"><div class="detail-head"><div><p class="eyebrow">SELECTED FLIGHT</p><h2>{{flight.number}}</h2></div><i class="status {{statusClass(flight.status)}}">{{flight.status}}</i></div><div class="detail-callsign"><span>CALLSIGN</span><b>{{flight.callsign}}</b><small>{{flight.aircraft}}</small></div><div class="journey"><div><span>DEPARTURE</span><b>{{flight.origin.code}}</b><small>{{flight.origin.city}}</small><time>{{flight.etd}}</time></div><div class="journey-line"><span>✈</span><i></i></div><div><span>ARRIVAL</span><b>{{flight.destination.code}}</b><small>{{flight.destination.city}}</small><time>{{flight.eta}}</time></div></div><div class="progress"><div><span>Flight progress</span><b>{{flight.progress}}%</b></div><i><b [style.width.%]="flight.progress"></b></i></div><div class="route-stats" *ngIf="routeStats(flight) as stats"><span><b>{{stats.distance | number}} km</b> route distance</span><span><b>{{stats.remainingKm | number}} km</b> remaining</span></div><dl><div><dt>ALTITUDE</dt><dd>{{flight.altitude ? (flight.altitude | number)+' ft' : 'On ground'}}</dd></div><div><dt>GROUND SPEED</dt><dd>{{flight.speed ? flight.speed+' kts' : '—'}}</dd></div><div><dt>ROUTE</dt><dd>{{flight.origin.code}} → {{flight.destination.code}}</dd></div><div><dt>LAST UPDATE</dt><dd>Just now</dd></div></dl><button class="track" (click)="select(flight)">◎ Center on flight</button></aside>
- </section>
+  <header class="topbar">
+    <a class="brand" href="#"
+      ><span class="brand-mark">A</span
+      ><span>Aero<span>Vista</span><small>OPERATIONS CONTROL</small></span></a
+    >
+    <div class="live" *ngIf="now$ | async as now">
+      <i></i> LIVE NETWORK <span>•</span>
+      {{ now | date: "dd MMM yyyy" : "Asia/Kolkata" : "en-IN" | uppercase }}
+      <strong
+        >{{ now | date: "HH:mm:ss" : "Asia/Kolkata" : "en-IN" }} IST</strong
+      >
+    </div>
+    <details class="operator-menu">
+      <summary class="profile" aria-label="Open operator profile">GB</summary>
+      <div class="operator-card">
+        <span class="operator-avatar">GB</span>
+        <div><b>Ganga Bhavani</b><small>Operations Controller</small></div>
+        <p [class.away]="operatorStatus === 'Away'">
+          <i></i> {{ operatorStatus }} <em>Mock session</em>
+        </p>
+        <button type="button" (click)="toggleOperatorStatus()">
+          Set {{ operatorStatus === "On duty" ? "away" : "on duty" }}
+        </button>
+      </div>
+    </details>
+  </header>
+  <section class="intro">
+    <div>
+      <p class="eyebrow">
+        NETWORK OVERVIEW <span>·</span> INDIA & INTERNATIONAL
+      </p>
+      <h1>Flight operations, <em>in view.</em></h1>
+      <p class="subcopy">
+        A real-time operations workspace for confident, informed decisions.
+      </p>
+    </div>
+    <button
+      class="export"
+      type="button"
+      title="Export report"
+      aria-label="Export report"
+      (click)="exportFlights()"
+    >
+      ⇩ <span>Export report</span>
+    </button>
+  </section>
+  <section class="kpis" *ngIf="kpis | async as cards">
+    <article *ngFor="let card of cards" class="kpi {{ card.tone }}">
+      <div class="kpi-icon">{{ card.icon }}</div>
+      <div>
+        <span>{{ card.label }}</span
+        ><strong>{{ card.value | number: "2.0" }}</strong>
+      </div>
+      <small>↗ Live</small>
+    </article>
+  </section>
+  <section class="alerts" *ngIf="alerts$ | async as alerts">
+    <button
+      type="button"
+      *ngFor="let flight of alerts"
+      (click)="select(flight)"
+    >
+      <span [class]="'alert-dot ' + statusClass(flight.status)"></span
+      ><b>{{ flight.number }}</b
+      ><span>{{
+        flight.status === "Delayed"
+          ? "Delay requires review"
+          : "Boarding in progress"
+      }}</span
+      ><small>{{ flight.origin.code }} → {{ flight.destination.code }}</small>
+    </button>
+    <p *ngIf="!alerts.length">
+      ✓ No operational exceptions requiring attention.
+    </p>
+  </section>
+  <section class="workspace">
+    <aside class="sidebar">
+      <div class="side-head">
+        <div>
+          <p class="eyebrow">FLIGHT DIRECTORY</p>
+          <h2>
+            Network flights
+            <span *ngIf="flights$ | async as list">{{ list.length }}</span>
+          </h2>
+        </div>
+        <button
+          title="Clear filters"
+          aria-label="Clear filters"
+          (click)="clear()"
+        >
+          ↻
+        </button>
+      </div>
+      <form [formGroup]="filter" class="filters">
+        <label class="search"
+          ><span>⌕</span
+          ><input formControlName="query" placeholder="Search callsign"
+        /></label>
+        <div class="select-grid">
+          <label
+            >Status<select formControlName="status">
+              <option>All</option>
+              <option *ngFor="let status of statuses">{{ status }}</option>
+            </select></label
+          ><label
+            >Origin<select formControlName="origin">
+              <option>All</option>
+              <option *ngFor="let airport of airports">{{ airport }}</option>
+            </select></label
+          >
+        </div>
+        <label
+          >Destination<select formControlName="destination">
+            <option>All</option>
+            <option *ngFor="let airport of airports">{{ airport }}</option>
+          </select></label
+        >
+      </form>
+      <div class="flight-list" *ngIf="flights$ | async as list">
+        <button
+          class="flight-row"
+          *ngFor="let f of list"
+          (click)="select(f)"
+          [class.active]="(selected$ | async)?.id === f.id"
+        >
+          <span class="flight-top"
+            ><b>{{ f.number }}</b
+            ><i class="status {{ statusClass(f.status) }}">{{
+              f.status
+            }}</i></span
+          ><strong>{{ f.callsign }}</strong
+          ><span class="route"
+            ><span
+              >{{ f.origin.code }}<small>{{ f.origin.city }}</small></span
+            ><span class="route-line">✈</span
+            ><span
+              >{{ f.destination.code
+              }}<small>{{ f.destination.city }}</small></span
+            ></span
+          ><span class="time"
+            >ETA <b>{{ f.eta }}</b></span
+          >
+        </button>
+        <div class="empty" *ngIf="!list.length">
+          No flights match these filters.
+        </div>
+      </div>
+    </aside>
+    <section class="map-area">
+      <div id="flight-map" aria-label="Interactive live flight map"></div>
+      <div class="map-label">
+        <span class="pulse"></span><span>LIVE AIRSPACE</span><b>{{ visibleFlights.length }} tracked</b>
+      </div>
+      <button
+        class="simulator"
+        type="button"
+        (click)="toggleSimulation()"
+        [class.running]="simulationActive"
+      >
+        <span>{{ simulationActive ? "Ⅱ" : "▶" }}</span
+        >{{
+          simulationActive ? "Pause live simulation" : "Play live simulation"
+        }}
+      </button>
+      <div class="legend">
+        <button
+          type="button"
+          (click)="setMapStatus('En route')"
+          [class.active]="filter.controls.mapStatus.value === 'En route'"
+        >
+          <i class="dot en-route"></i>En route</button
+        ><button
+          type="button"
+          (click)="setMapStatus('Delayed')"
+          [class.active]="filter.controls.mapStatus.value === 'Delayed'"
+        >
+          <i class="dot delayed"></i>Delayed</button
+        ><button
+          type="button"
+          (click)="setMapStatus('Ground')"
+          [class.active]="filter.controls.mapStatus.value === 'Ground'"
+        >
+          <i class="dot boarding"></i>Ground</button
+        ><button
+          type="button"
+          class="all"
+          (click)="setMapStatus('All')"
+          [class.active]="filter.controls.mapStatus.value === 'All'"
+        >
+          All
+        </button>
+      </div>
+    </section>
+    <aside class="detail" *ngIf="selected$ | async as flight">
+      <div class="detail-head">
+        <div>
+          <p class="eyebrow">SELECTED FLIGHT</p>
+          <h2>{{ flight.number }}</h2>
+        </div>
+        <i class="status {{ statusClass(flight.status) }}">{{
+          flight.status
+        }}</i>
+      </div>
+      <div class="detail-callsign">
+        <span>CALLSIGN</span><b>{{ flight.callsign }}</b
+        ><small>{{ flight.aircraft }}</small>
+      </div>
+      <div class="journey">
+        <div>
+          <span>DEPARTURE</span><b>{{ flight.origin.code }}</b
+          ><small>{{ flight.origin.city }}</small
+          ><time>{{ flight.etd }}</time>
+        </div>
+        <div class="journey-line"><span>✈</span><i></i></div>
+        <div>
+          <span>ARRIVAL</span><b>{{ flight.destination.code }}</b
+          ><small>{{ flight.destination.city }}</small
+          ><time>{{ flight.eta }}</time>
+        </div>
+      </div>
+      <div class="progress">
+        <div>
+          <span>Flight progress</span><b>{{ flight.progress }}%</b>
+        </div>
+        <i><b [style.width.%]="flight.progress"></b></i>
+      </div>
+      <div class="route-stats" *ngIf="routeStats(flight) as stats">
+        <span
+          ><b>{{ stats.distance | number }} km</b> route distance</span
+        ><span
+          ><b>{{ stats.remainingKm | number }} km</b> remaining</span
+        >
+      </div>
+      <dl>
+        <div>
+          <dt>ALTITUDE</dt>
+          <dd>
+            {{
+              flight.altitude ? (flight.altitude | number) + " ft" : "On ground"
+            }}
+          </dd>
+        </div>
+        <div>
+          <dt>GROUND SPEED</dt>
+          <dd>{{ flight.speed ? flight.speed + " kts" : "—" }}</dd>
+        </div>
+        <div>
+          <dt>ROUTE</dt>
+          <dd>{{ flight.origin.code }} → {{ flight.destination.code }}</dd>
+        </div>
+        <div>
+          <dt>LAST UPDATE</dt>
+          <dd>Just now</dd>
+        </div>
+      </dl>
+      <button class="track" (click)="select(flight)">◎ Center on flight</button>
+    </aside>
+  </section>
 </main>

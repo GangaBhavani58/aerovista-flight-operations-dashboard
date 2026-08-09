@@ -27,7 +27,7 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
   private layers = L.layerGroup();
   private subscriptions = new Subscription();
   private simulationTimer?: ReturnType<typeof setInterval>;
-  private visibleFlights: Flight[] = [];
+  visibleFlights: Flight[] = [];
   simulationActive = false;
   readonly now$ = timer(0, 1000).pipe(map(() => new Date()));
   readonly filter = this.fb.nonNullable.group({
@@ -144,12 +144,19 @@ export class DashboardComponent implements AfterViewInit, OnDestroy {
     this.subscriptions.add(
       this.flights$.subscribe((fs) => {
         this.visibleFlights = fs;
+        const selected = this.service.selected$.value;
+
+        // Keep the selected flight synchronized with the filtered list.
+        if (fs.length && !fs.some((f) => f.id === selected.id)) {
+          this.service.select(fs[0]);
+          return;
+        }
         this.paint(fs);
       }),
     );
     this.subscriptions.add(
       this.selected$.subscribe((f) => {
-        this.paint(this.service.flights$.value);
+        this.paint(this.visibleFlights);
         setTimeout(
           () =>
             this.map?.flyTo(f.position, Math.max(this.map?.getZoom() ?? 5, 6), {

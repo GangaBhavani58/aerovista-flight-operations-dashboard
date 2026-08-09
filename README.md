@@ -141,3 +141,25 @@ On tablets the details panel yields space to the map; on small screens the list 
 ## Future enhancements
 
 The boundary between `FlightService` and the feature makes a live API/WebSocket feed an incremental change. Marker clustering, weather layers, timeline playback, and route-aware great-circle paths would be natural next iterations.
+
+## Screenshots
+
+### Dashboard Overview
+
+<img src="./screenshots/01-dashboard-overview.png" alt="Dashboard Overview">
+
+### Dashboard with Operator Profile
+
+<img src="./screenshots/02-dashboard-overview-with-profile.png" alt="Dashboard with Operator Profile">
+
+### Search and Filtering
+
+<img src="./screenshots/03-search-and-filter.png" alt="Search and Filtering">
+
+### Mobile Responsive Layout
+
+<img src="./screenshots/04-mobile-responsive.png" alt="Mobile Responsive Layout">
+
+### Selected Flight and Route
+
+<img src="./screenshots/05-selected-flight-route.png" alt="Selected Flight and Route">

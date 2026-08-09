@@ -808,3 +808,25 @@ dd {
   border-left: 1px solid #294663;
   margin-left: 3px;
 }
+@media (max-width: 600px) {
+  .alerts {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+
+  .alerts::-webkit-scrollbar {
+    display: none;
+  }
+
+  .alerts button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 10px;
+  }
+
+  .alerts button b {
+    font-size: 10px;
+  }
+}
