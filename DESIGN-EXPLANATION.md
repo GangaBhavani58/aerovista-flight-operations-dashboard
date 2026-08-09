@@ -44,11 +44,17 @@ Information hierarchy
 
 The interface is organized into three major areas:
 
-┌────────────────┬──────────────────────┬─────────────────┐
-│ Flight         │                      │ Selected Flight │
-│ Directory      │       Flight Map     │ Details         │
-│                │                      │                 │
-└────────────────┴──────────────────────┴─────────────────┘
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                     Flight Operations                       │
+├──────────────────────┬──────────────────────┬───────────────┤
+│   Flight Directory   │      Flight Map      │Selected Flight│
+│                      │                      │               │
+│ Search & Filters     │ Aircraft Markers     │ Flight Status │
+│ Flight List          │ Routes               │ Route Details │
+│ Status Filters       │ Airport Locations    │ Progress      │
+└──────────────────────┴──────────────────────┴───────────────┘
+```
 
 The KPI cards and operational alerts appear above these areas so that important network-level information is visible immediately.
 
@@ -132,21 +138,28 @@ This creates a clear progression from network overview to individual flight insp
 
 The application uses a lightweight feature-oriented Angular structure:
 
+```text
 src/app/
 ├── core/
-│ ├── models/
-│ │ └── flight.model.ts
-│ └── services/
-│ └── flight.service.ts
+│   ├── models/
+│   │   └── flight.model.ts
+│   └── services/
+│       └── flight.service.ts
 │
 ├── features/
-│ └── dashboard/
-│ ├── dashboard.component.ts
-│ ├── dashboard.component.html
-│ └── dashboard.component.scss
+│   └── dashboard/
+│       ├── dashboard.component.ts
+│       ├── dashboard.component.html
+│       └── dashboard.component.scss
 │
 ├── app.routes.ts
 └── app.config.ts
+```
+
+The `core` layer contains the domain model and shared flight service, while the `dashboard` feature contains the primary UI and Leaflet map integration. Routing and application-level providers are kept at the application root.
+
+The dashboard is implemented as a standalone Angular component, keeping the feature lightweight and avoiding unnecessary module-level complexity.
+
 Domain model
 
 flight.model.ts contains the TypeScript contracts for the application's flight data.
