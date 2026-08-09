@@ -1,0 +1,41 @@
+:root {
+  --bg: #071427;
+  --panel: #0d1d31;
+  --line: #1c3550;
+  --cyan: #59c8ff;
+  --muted: #819bb7;
+  color-scheme: dark;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: radial-gradient(circle at 70% -20%, #173a5c 0, #071427 43%);
+  color: #e7f0fc;
+  font-family: Manrope, Arial, sans-serif;
+}
+button,
+input,
+select {
+  font: inherit;
+}
+.leaflet-tooltip {
+  background: #0b1d31;
+  color: #dfeeff;
+  border: 1px solid #315474;
+  border-radius: 6px;
+  font: 10px Manrope;
+  box-shadow: none;
+}
+.leaflet-tooltip:before {
+  border-top-color: #315474 !important;
+}
+.leaflet-control-zoom a {
+  background: #10243c !important;
+  color: #d9ecff !important;
+  border-color: #234564 !important;
+}
+.leaflet-control-zoom a:hover {
+  background: #193653 !important;
+}
